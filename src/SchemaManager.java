@@ -7,17 +7,11 @@ import java.sql.Statement;
 public class SchemaManager {
     private final DataSource dataSource;
     private PreparedStatement statement;
-    private static SchemaManager instance;
 
-    private SchemaManager(DataSource dataSource) {
+    public SchemaManager(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public static SchemaManager getInstance(DataSource dataSource) {
-        if(instance == null)
-            instance = new SchemaManager(dataSource);
-        return instance;
-    }
 
     public void initializeTables(){
         try{
@@ -53,7 +47,7 @@ public class SchemaManager {
         try(Connection connection = dataSource.getConnection();
             Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE role (" +
-                    "role_id INT AUTO_INCREMENT PRIMARY KEY," +
+                    "role_id INT PRIMARY KEY," +
                     "name VARCHAR(255) UNIQUE NOT NULL)");
         }
     }

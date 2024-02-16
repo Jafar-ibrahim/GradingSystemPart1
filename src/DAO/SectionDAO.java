@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import Exception.*;
 
 public class SectionDAO {
 
@@ -14,28 +15,26 @@ public class SectionDAO {
         this.dataSource = dataSource;
     }
 
-    public void insertSection(Connection connection, int courseId) throws SQLException {
+    public void insertSection(int courseId) throws SQLException {
 
         // Insert the new section
         String sql = "INSERT INTO section(course_id, course_name) VALUES (?, ?)";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, courseId);
-            preparedStatement.setString(2, getCourseName(connection, courseId));
+            preparedStatement.setString(2, getCourseName(courseId));
             preparedStatement.executeUpdate();
         }
     }
 
-    public String getCourseName(Connection connection, int courseId) throws SQLException {
+    public String getCourseName(int courseId) throws SQLException {
         String sql = "SELECT course_name FROM course WHERE course_id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, courseId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getString("course_name");
-                }
-                throw new SQLException("Course not found for courseId: " + courseId);
+                 return resultSet.getString("course_name");
+
             }
         }
     }
@@ -45,6 +44,18 @@ public class SectionDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, sectionId);
             preparedStatement.executeUpdate();
+        }
+    }
+
+    public static void checkSectionExists(Connection connection, int sectionId) throws SQLException {
+        String sql = "SELECT 1 FROM section WHERE section_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, sectionId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if(!resultSet.next())
+                    throw new SectionNotFoundException();
+            }
         }
     }
 

@@ -1,3 +1,4 @@
+import Service.*;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
 import javax.sql.DataSource;
@@ -6,23 +7,34 @@ import java.util.Random;
 
 public class Server  {
 
-    private static DataSource dataSource;
-    private static SchemaManager schemaManager;
+    private  DataSource dataSource;
+    private  SchemaManager schemaManager;
+    private  EnrollmentService enrollmentService;
+    private  GradeService gradeService;
+    private  UserService userService;
+    private RoleService roleService;
+    private CourseService courseService;
+    private SectionService sectionService;
 
     public Server() {
-    }
-
-    public static void main(String[] args) throws SQLException {
         try {
             dataSource = getDataSource();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        schemaManager = SchemaManager.getInstance(dataSource);
+        schemaManager = new SchemaManager(dataSource);
+        roleService = new RoleService(dataSource);
+        enrollmentService = new EnrollmentService(dataSource);
+        gradeService = new GradeService(dataSource);
+        userService = new UserService(dataSource);
+    }
 
-        schemaManager.dropAllTablesIfExist();
-        schemaManager.initializeTables();
-        insertDummyData();
+    public static void main(String[] args) throws SQLException {
+        Server server = new Server();
+
+        server.schemaManager.dropAllTablesIfExist();
+        server.schemaManager.initializeTables();
+        server.insertDummyData();
         /*insertUser(dataSource.getConnection(), 11,"test","sdfsf","sdfsdf","sdfsdf",3);
         insertStudentSection(dataSource.getConnection(), 11,1);
         insertGrade(dataSource.getConnection(),11,85,1);*/
@@ -66,36 +78,36 @@ public class Server  {
 
 
 
-    private static void insertDummyData()  {
+    private void insertDummyData()  {
         try (Connection connection = dataSource.getConnection()) {
             // Insert dummy roles
-            insertRole(connection, 1, "admin");
-            insertRole(connection, 2, "instructor");
-            insertRole(connection, 3, "student");
+            roleService.addRole(1, "admin");
+            roleService.addRole(2, "instructor");
+            roleService.addRole(3, "student");
 
             String[] names = new String[]{"Jafar","Omar","Ahmad","Fatima","Sara","sffs","sdfsdf","saif","yousef"};
             // Insert dummy users
-            addAdmin(connection,"Admin1","password" , "FirstName", "LastName");
-            addInstructor(connection,"Instructor1","password" , "FirstName", "LastName");
-            addInstructor(connection,"Instructor2","password" , "FirstName", "LastName");
-            addInstructor(connection,"Instructor3","password" , "FirstName", "LastName");
+            userService.addAdmin("Admin1","password" , "FirstName", "LastName");
+            userService.addInstructor("Instructor1","password" , "FirstName", "LastName");
+            userService.addInstructor("Instructor2","password" , "FirstName", "LastName");
+            userService.addInstructor("Instructor3","password" , "FirstName", "LastName");
 
             for (int i = 1; i <= names.length; i++) {
-                addStudent(connection, names[i-1], "password" + i, "FirstName" + i, "LastName" + i);
+                userService.addStudent(names[i-1], "password" + i, "FirstName" + i, "LastName" + i);
             }
 
             String[] courses = new String[]{"Data Structures","Parallel Processing","Java Programming","Operating Systems","Networks"};
             // Insert dummy courses
             for (int i = 1; i <= 5; i++) {
-                insertCourse(connection, courses[i-1]);
+                c.insertCourse(courses[i-1]);
             }
 
-            insertSection(connection,  1 );
-            insertSection(connection,  1 );
-            insertSection(connection,  2 );
-            insertSection(connection,  3 );
-            insertSection(connection,  4 );
-            insertSection(connection,  5 );
+            sectionService.addSection(1 );
+            sectionService.addSection(  1 );
+            sectionService.addSection(2 );
+            sectionService.addSection(3 );
+            sectionService.addSection(4 );
+            sectionService.addSection(5 );
 
             insertStudentSection(connection, 1, 1);
             insertStudentSection(connection, 2, 1);
@@ -119,46 +131,8 @@ public class Server  {
             e.printStackTrace();
         }
     }
-    public static void addAdmin(Connection connection, String username, String password, String firstName, String lastName) throws SQLException {
-        // Create a user and retrieve the generated user_id
-        int userId = insertUser(connection, username, password, firstName, lastName,1);
-
-        // Insert an admin with the generated user_id
-        insertAdmin(connection, userId);
-    }
-    private static void addStudent(Connection connection, String username, String password,
-                            String firstName, String lastName) throws SQLException {
-        int userID = insertUser(connection,username,password,firstName,lastName,3);
-        insertStudent(connection,userID);
-
-    }
-
-    public static void addInstructor(Connection connection, String username, String password, String firstName, String lastName) throws SQLException {
-        // Create a user and retrieve the generated user_id
-        int userId = insertUser(connection, username, password, firstName, lastName,2);
-
-        // Insert an instructor with the generated user_id
-        insertInstructor(connection, userId);
-    }
 
 
-
-
-
-
-
-
-    // View combined information: grades, section averages, and overall average
-    private static void viewCombinedInformation(Connection connection, int studentId) throws SQLException {
-        System.out.println("Combined Information for Student " + studentId + ":\n");
-
-        // View grades in all courses
-        viewStudentGrades(connection, studentId);
-
-        // View average across all courses
-        viewStudentAverage(connection, studentId);
-
-    }
 
 
 

@@ -13,7 +13,7 @@ public class RoleDAO {
         this.dataSource = dataSource;
     }
 
-    public void insertRole(Connection connection, int roleId , String roleName) throws SQLException {
+    public void insertRole(int roleId , String roleName) throws SQLException {
         String sql = "INSERT INTO role(role_id, name) VALUES (?,?)";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

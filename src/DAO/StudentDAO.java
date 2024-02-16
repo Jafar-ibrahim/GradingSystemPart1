@@ -3,6 +3,7 @@ package DAO;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class StudentDAO {
@@ -27,6 +28,17 @@ public class StudentDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, studentId);
             preparedStatement.executeUpdate();
+        }
+    }
+
+    public static boolean checkStudentExists(Connection connection, int studentId) throws SQLException {
+        String sql = "SELECT 1 FROM student WHERE user_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, studentId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
         }
     }
 

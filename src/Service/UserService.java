@@ -30,7 +30,7 @@ public class UserService {
         // Insert an admin with the generated user_id
         adminDAO.insertAdmin(userId);
     }
-    private void addStudent( String username, String password,
+    public void addStudent( String username, String password,
                                    String firstName, String lastName) throws SQLException {
         int userID = userDAO.insertUser(username,password,firstName,lastName,3);
         studentDAO.insertStudent(userID);
@@ -44,7 +44,7 @@ public class UserService {
         // Insert an instructor with the generated user_id
         instructorDAO.insertInstructor(userId);
     }
-    public void deleteAdmin(Connection connection, int adminId) throws SQLException {
+    public void deleteAdmin(int adminId) throws SQLException {
         // Delete admin
         adminDAO.deleteAdmin(adminId);
 

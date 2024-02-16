@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import Exception.*;
 
 public class InstructorDAO {
 
@@ -22,38 +23,7 @@ public class InstructorDAO {
             preparedStatement.executeUpdate();
         }
     }
-    public void printInstructorCourses(int instructorId) {
-        String sql = "SELECT c.course_name, s.section_id " +
-                "FROM instructor_section isec " +
-                "JOIN section s ON isec.section_id = s.section_id " +
-                "JOIN course c ON s.course_id = c.course_id " +
-                "WHERE isec.instructor_id = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setInt(1, instructorId);
-
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                String instructorName = getInstructorFullName(instructorId);
-                System.out.println("Instructor ("+instructorName+")'s sections :");
-                // Print table header
-                System.out.printf("%-22s%-15s%n","Section_no", "Course Name" );
-                System.out.println("----------------------------------------");
-
-                // Print result set
-                while (resultSet.next()) {
-                    String courseName = resultSet.getString("course_name");
-                    int sectionNumber = resultSet.getInt("section_id");
-
-                    // Print each row
-                    System.out.printf("%-20s%-25s%n", sectionNumber, courseName);
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
     public String getInstructorFullName( int instructorId) {
         String sql = "SELECT CONCAT(u.first_name, ' ', u.last_name) AS full_name " +
                 "FROM user u " +
@@ -103,5 +73,15 @@ public class InstructorDAO {
         }
     }
 
+    public static void checkInstructorExists(Connection connection, int instructorId) throws SQLException {
+        String sql = "SELECT 1 FROM instructor WHERE user_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, instructorId);
 
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if(!resultSet.next())
+                    throw new UserNotFoundException();
+            }
+        }
+    }
 }

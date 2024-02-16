@@ -13,7 +13,7 @@ public class InstructorSectionDAO {
         this.dataSource = dataSource;
     }
 
-    public void insertInstructorSection(Connection connection, int instructorId, int sectionId) throws SQLException {
+    public void insertInstructorSection(int instructorId, int sectionId) throws SQLException {
         String sql = "INSERT INTO instructor_section(instructor_id, section_id) VALUES (?, ?)";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

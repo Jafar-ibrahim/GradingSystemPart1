@@ -14,7 +14,7 @@ public class GradeDAO {
         this.dataSource = dataSource;
     }
 
-    public void insertGrade(Connection connection, int studentId, int grade, int sectionId) throws SQLException {
+    public void insertGrade(int studentId, int grade, int sectionId) throws SQLException {
         String sql = "INSERT INTO grade(student_id, section_id, grade) VALUES (?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -34,13 +34,13 @@ public class GradeDAO {
             return preparedStatement.executeUpdate();
         }
     }
-    public void deleteGrade(int studentId, int sectionId) throws SQLException {
+    public int deleteGrade(int studentId, int sectionId) throws SQLException {
         String sql = "DELETE FROM grade WHERE student_id = ? AND section_id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, studentId);
             preparedStatement.setInt(2, sectionId);
-            preparedStatement.executeUpdate();
+            return preparedStatement.executeUpdate();
         }
     }
     public ResultSet getStudentGrades(int studentId) throws SQLException {

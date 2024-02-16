@@ -2,6 +2,7 @@ package DAO;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import Exception.*;
 
 public class UserDAO {
 
@@ -40,6 +41,18 @@ public class UserDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
             preparedStatement.executeUpdate();
+        }
+    }
+
+    public static void checkUserExists(Connection connection, int userId) throws SQLException {
+        String sql = "SELECT 1 FROM user WHERE user_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if(!resultSet.next())
+                    throw new UserNotFoundException();
+            }
         }
     }
 }
