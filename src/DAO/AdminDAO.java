@@ -1,9 +1,8 @@
 package DAO;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+
 
 public class AdminDAO {
 
@@ -30,5 +29,24 @@ public class AdminDAO {
         }
     }
 
+    public int getAdminId(int userId) throws SQLException {
+        String sql = "SELECT admin_id FROM admin WHERE user_id = ?";
+        int adminId = -1; // Default value if admin not found
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    adminId = resultSet.getInt("admin_id");
+                }
+            }
+
+        }
+
+        return adminId;
+    }
 
 }

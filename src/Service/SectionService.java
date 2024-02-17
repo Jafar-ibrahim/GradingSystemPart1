@@ -6,6 +6,7 @@ import DAO.SectionDAO;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class SectionService {
     private final DataSource dataSource;
@@ -16,30 +17,36 @@ public class SectionService {
         sectionDAO = new SectionDAO(dataSource);
     }
 
-    public void addSection(int courseId){
+    public String addSection(int courseId){
         try(Connection connection = dataSource.getConnection()){
             CourseDAO.checkCourseExists(connection,courseId);
             sectionDAO.insertSection(courseId);
+            return "Section added successfully";
         }catch (SQLException e){
             System.out.println(e.getMessage());
-        }
+            e.printStackTrace();
+            return "Section addition failed";}
     }
 
-    public void deleteSection(int courseId){
+    public String deleteSection(int sectionId){
         try(Connection connection = dataSource.getConnection()){
-            CourseDAO.checkCourseExists(connection,courseId);
-            sectionDAO.deleteSection(courseId);
+            SectionDAO.checkSectionExists(connection,sectionId);
+            sectionDAO.deleteSection(sectionId);
+            return "Section deleted successfully";
         }catch (SQLException e){
             System.out.println(e.getMessage());
+            e.printStackTrace();
+            return "Section deletion failed";
         }
     }
 
-    public String getCourseName(int courseId){
+    public String getSectionCourseName(int courseId){
         try(Connection connection = dataSource.getConnection()){
             CourseDAO.checkCourseExists(connection,courseId);
             return sectionDAO.getCourseName(courseId);
         }catch (SQLException e){
             System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

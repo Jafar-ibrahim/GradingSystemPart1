@@ -17,7 +17,6 @@ public class SectionDAO {
 
     public void insertSection(int courseId) throws SQLException {
 
-        // Insert the new section
         String sql = "INSERT INTO section(course_id, course_name) VALUES (?, ?)";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -33,10 +32,11 @@ public class SectionDAO {
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, courseId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                 return resultSet.getString("course_name");
-
+                if(resultSet.next())
+                    return resultSet.getString("course_name");
             }
         }
+        return "N/A";
     }
     public void deleteSection(int sectionId) throws SQLException {
         String sql = "DELETE FROM section WHERE section_id = ?";

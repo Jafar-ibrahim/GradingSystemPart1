@@ -14,7 +14,7 @@ public class UserDAO {
     public int insertUser(String username, String password,
                                   String firstName, String lastName, int roleId) throws SQLException {
         int userId = -1;
-        String sql = "INSERT INTO user(username, password_hash, first_name, last_name, role_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO user(username, password, first_name, last_name, role_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, username);
@@ -53,6 +53,66 @@ public class UserDAO {
                 if(!resultSet.next())
                     throw new UserNotFoundException();
             }
+        }
+    }
+    public String getFullName(int userId) throws SQLException {
+        String sql = "SELECT first_name, last_name FROM user WHERE user_id = ?";
+        String fullName = null; // Default value if user not found
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    String firstName = resultSet.getString("first_name");
+                    String lastName = resultSet.getString("last_name");
+                    fullName = firstName + " " + lastName;
+                }
+            }
+
+        }
+
+        return fullName;
+    }
+    public int getRole(int userId) throws SQLException {
+        String sql = "SELECT role_id FROM user WHERE user_id = ?";
+        int roleId = -1; // Default value if user not found or role not set
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    roleId = resultSet.getInt("role_id");
+                }
+            }
+
+        }
+        return roleId;
+    }
+    public int authenticateUser(String username, String password) throws SQLException {
+        String sql = "SELECT user_id FROM user WHERE username = ? AND password = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    // User authenticated, return user_id
+                    return resultSet.getInt("user_id");
+                } else {
+                    // User not authenticated
+                    return -1;
+                }
+            }
+
         }
     }
 }

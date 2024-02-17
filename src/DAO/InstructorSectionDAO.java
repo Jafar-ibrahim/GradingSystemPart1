@@ -3,6 +3,7 @@ package DAO;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class InstructorSectionDAO {
@@ -33,5 +34,21 @@ public class InstructorSectionDAO {
         }
     }
 
+    public boolean InstructorSectionExists(int instructorId, int sectionId) throws SQLException {
+        String sql = "SELECT COUNT(*) AS count FROM instructor_section WHERE instructor_id = ? AND section_id = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, instructorId);
+            preparedStatement.setInt(2, sectionId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int count = resultSet.getInt("count");
+                    return count > 0;
+                }
+            }
+        }
+        return false;
+    }
 
 }

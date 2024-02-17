@@ -2,6 +2,11 @@ package DAO;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import Exception.*;
 
 public class CourseDAO {
@@ -41,7 +46,7 @@ public class CourseDAO {
         }
     }
 
-    public ResultSet getInstructorCourses(int instructorId) throws SQLException {
+    public List<Map<String, Object>> getInstructorCourses(int instructorId) throws SQLException {
         String sql = "SELECT c.course_name, s.section_id " +
                 "FROM instructor_section isec " +
                 "JOIN section s ON isec.section_id = s.section_id " +
@@ -52,9 +57,18 @@ public class CourseDAO {
 
             preparedStatement.setInt(1, instructorId);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return resultSet;
+            List<Map<String, Object>> courses = new ArrayList<>();
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                Map<String, Object> courseMap = new HashMap<>();
+                courseMap.put("course_name", resultSet.getString("course_name"));
+                courseMap.put("section_id", resultSet.getInt("section_id"));
+                courses.add(courseMap);
             }
+
+            resultSet.close();
+            return courses;
         }
     }
 

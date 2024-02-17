@@ -6,93 +6,147 @@ import DAO.StudentDAO;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 
 public class GradeService {
 
     private final DataSource dataSource;
     private final GradeDAO gradeDAO;
+    private final StudentDAO studentDAO;
 
     public GradeService(DataSource dataSource) {
         this.dataSource = dataSource;
         gradeDAO = new GradeDAO(dataSource);
+        studentDAO = new StudentDAO(dataSource);
     }
 
-    public void addGrade(int studentId, int grade, int sectionId){
+    public String addGrade(int studentId, int grade, int sectionId){
         try(Connection connection = dataSource.getConnection()){
             StudentDAO.checkStudentExists(connection,studentId);
             SectionDAO.checkSectionExists(connection,sectionId);
             gradeDAO.insertGrade(studentId,grade,sectionId);
+            return "Grade added successfully";
         }catch (SQLException e){
             System.out.println(e.getMessage());
+            e.printStackTrace();
+            return "Grade addition failed.";
         }
     }
 
-    public void deleteGrade(int studentId, int sectionId){
+    public String deleteGrade(int studentId, int sectionId){
         int affectedRows = 0;
-        try {
+        try{
             affectedRows = gradeDAO.deleteGrade(studentId,sectionId);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
         if (affectedRows > 0) {
-            System.out.println("Grade deleted successfully.");
+            return "Grade deleted successfully.";
         } else {
-            System.out.println("No matching record found for the specified student and section.");
+            return "No matching record found for the specified student and section.";
         }
     }
-
-    public void printGradeReport(int studentId) throws SQLException {
-        ResultSet resultSet = gradeDAO.getStudentGrades(studentId);
-        // Print table header
-        System.out.printf("%-20s%-15s%-15s%-15s%n", "Course Name", "Section ID", "Grade", "Section Average");
-        System.out.println("--------------------------------------------------");
-
-        // Print result set
-        while (resultSet.next()) {
-            String courseName = resultSet.getString("course_name");
-            int sectionId = resultSet.getInt("section_id");
-            double grade = resultSet.getDouble("grade");
-            double sectionAverage = resultSet.getDouble("average_grade");
-
-            // Print each row
-            System.out.printf("%-20s%-15s%-15s%-15s%n", courseName, sectionId, grade, sectionAverage);
-        }
-    }
-
-    public void printStudentAverage(int studentId) throws SQLException {
-        ResultSet resultSet = gradeDAO.getStudentAverage(studentId);
-
-        if(resultSet.next()) {
-            double overallAvg = resultSet.getDouble("overall_average");
-            System.out.println("Overall Average Across All Courses: " + overallAvg + "\n");
-        }
-    }
-    public void printCombinedInformation(int studentId) throws SQLException {
-        System.out.println("Combined Information for Student " + studentId + ":\n");
-
-        // View grades in all courses
-        printGradeReport(studentId);
-
-        // View average across all courses
-        printStudentAverage(studentId);
-
-    }
-
-    public void updateGrade(int studentId, int sectionId, int newGrade){
+    public String updateGrade(int studentId, int sectionId, int newGrade){
         int affectedRows = 0;
-        try {
+        try(Connection connection = dataSource.getConnection()){
+            StudentDAO.checkStudentExists(connection,studentId);
+            SectionDAO.checkSectionExists(connection,sectionId);
             affectedRows = gradeDAO.updateGrade(studentId,sectionId,newGrade);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            e.printStackTrace();
         }
 
         if (affectedRows > 0) {
-            System.out.println("Grade updated successfully.");
+            return "Grade updated successfully.";
         } else {
-            System.out.println("No matching record found for the specified student and section.");
+            return "No matching record found for the specified student and section.";
         }
     }
+
+    public String getGradeReport(int studentId){
+        List<Map<String, Object>> grades = null;
+        try {
+            grades = gradeDAO.getStudentGrades(studentId);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+
+        StringBuilder reportBuilder = new StringBuilder();
+
+        reportBuilder.append(String.format("%-20s%-15s%-15s%-15s\n", "Course Name", "Section ID", "Grade", "Section Average"));
+        reportBuilder.append("---------------------------------------------------------------------\n");
+
+        assert grades != null;
+        for (Map<String, Object> grade : grades) {
+            String courseName = (String) grade.get("course_name");
+            int sectionId = (Integer) grade.get("section_id");
+            double gradeValue = (Double) grade.get("grade");
+            double sectionAverage = (Double) grade.get("average_grade");
+
+            reportBuilder.append(String.format("%-20s%-15s%-15s%-15s\n", courseName, sectionId, gradeValue, sectionAverage));
+        }
+
+        return reportBuilder.toString();
+    }
+
+    public String getStudentAverage(int studentId) {
+        double overallAvg = 0;
+        try {
+            overallAvg = gradeDAO.getStudentAverage(studentId);
+        }catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return "Overall Average Across All Courses: " + overallAvg + "\n";
+    }
+    public String getCombinedInformation(int studentId){
+        System.out.println("Combined Information for Student " + studentId + ":\n");
+
+        return getGradeReport(studentId)+"\n"+ getStudentAverage(studentId);
+
+    }
+
+
+
+    public String getSectionGrades(int sectionId) {
+        List<Map<String, Object>> gradesList;
+        try {
+            gradesList = gradeDAO.getGradesBySectionId(sectionId);
+            StringBuilder outputBuilder = new StringBuilder();
+
+            outputBuilder.append("Section ").append(sectionId).append(" grades:\n");
+            outputBuilder.append("-----------------------------------------------\n");
+
+            outputBuilder.append(String.format("%-15s%-25s%-15s\n", "Student ID", "Student_Full_Name", "Grade"));
+            outputBuilder.append("-----------------------------------------------\n");
+
+            for (Map<String, Object> gradesMap : gradesList) {
+                int studentId = (int) gradesMap.get("student_id");
+                String fullName = studentDAO.getStudentFullName(studentId);
+                double grade = (double) gradesMap.get("grade");
+                outputBuilder.append(String.format("%-15s%-25s%-15s\n", studentId, fullName, grade));
+            }
+
+            if (!gradesList.isEmpty()) {
+                double averageGrade = (double) gradesList.get(0).get("average_grade");
+                outputBuilder.append("\nAverage Grade for Section: ").append(averageGrade).append("\n");
+            }
+
+            return outputBuilder.toString();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return "";
+        }
+
+
+    }
+
+
 }

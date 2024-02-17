@@ -47,22 +47,7 @@ public class InstructorDAO {
         return null;
     }
 
-    public boolean isInstructorAssigned( int instructorId, int sectionId) throws SQLException {
-        String sql = "SELECT COUNT(*) AS count FROM instructor_section WHERE instructor_id = ? AND section_id = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, instructorId);
-            preparedStatement.setInt(2, sectionId);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    int count = resultSet.getInt("count");
-                    return count > 0;
-                }
-            }
-        }
-        return false;
-    }
 
     public void deleteInstructor(int instructorId) throws SQLException {
         String sql = "DELETE FROM instructor WHERE instructor_id = ?";
@@ -74,7 +59,7 @@ public class InstructorDAO {
     }
 
     public static void checkInstructorExists(Connection connection, int instructorId) throws SQLException {
-        String sql = "SELECT 1 FROM instructor WHERE user_id = ?";
+        String sql = "SELECT 1 FROM instructor WHERE instructor_id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, instructorId);
 
@@ -84,4 +69,23 @@ public class InstructorDAO {
             }
         }
     }
+    public int getInstructorId(int userId) throws SQLException {
+        String sql = "SELECT instructor_id FROM instructor WHERE user_id = ?";
+        int instructorId = -1; // Default value if instructor not found
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    instructorId = resultSet.getInt("instructor_id");
+                }
+            }
+
+        }
+        return instructorId;
+    }
+
 }

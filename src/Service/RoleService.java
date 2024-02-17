@@ -8,10 +8,8 @@ import java.sql.SQLException;
 public class RoleService {
 
     private final RoleDAO roleDAO;
-    private final DataSource dataSource;
 
     public RoleService(DataSource dataSource) {
-        this.dataSource = dataSource;
         roleDAO = new RoleDAO(dataSource);
     }
     public void addRole(int roleId,String roleName){

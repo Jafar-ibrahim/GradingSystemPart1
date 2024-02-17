@@ -15,18 +15,24 @@ public class CourseService {
         courseDAO = new CourseDAO(dataSource);
     }
 
-    public void addCourse(String courseName){
+    public String addCourse(String courseName){
         try{
             courseDAO.insertCourse(courseName);
+            return "Course added successfully";
         }catch (SQLException e){
-            System.out.println(e.getStackTrace());
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return "Course addition failed";
         }
     }
-    public void deleteCourse(int courseId){
+    public String deleteCourse(int courseId){
         try{
             courseDAO.deleteCourse(courseId);
+            return "Course deleted successfully";
+
         }catch (SQLException e){
-            System.out.println(e.getStackTrace());
-        }
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return "Course deletion failed";   }
     }
 }

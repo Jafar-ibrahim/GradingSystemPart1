@@ -57,7 +57,7 @@ public class SchemaManager {
             statement.execute("CREATE TABLE user (" +
                     "user_id INT AUTO_INCREMENT PRIMARY KEY," +
                     "username VARCHAR(255) UNIQUE NOT NULL," +
-                    "password_hash VARCHAR(255) NOT NULL," +
+                    "password VARCHAR(255) NOT NULL," +
                     "first_name VARCHAR(255)," +
                     "last_name VARCHAR(255)," +
                     "role_id INT," +

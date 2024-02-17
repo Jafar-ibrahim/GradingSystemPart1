@@ -23,47 +23,133 @@ public class UserService {
         this.studentDAO = new StudentDAO(dataSource);
     }
 
-    public void addAdmin(String username, String password, String firstName, String lastName) throws SQLException {
-        // Create a user and retrieve the generated user_id
-        int userId = userDAO.insertUser(username, password, firstName, lastName,1);
+    public String addAdmin(String username, String password, String firstName, String lastName){
+        try {
+            int userId = userDAO.insertUser(username, password, firstName, lastName,1);
+            adminDAO.insertAdmin(userId);
+            return "Admin added successfully.";
+        }catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            // Return -1 in case of an exception (authentication failure)
+            return "Admin addition failed.";
+        }
 
-        // Insert an admin with the generated user_id
-        adminDAO.insertAdmin(userId);
     }
-    public void addStudent( String username, String password,
-                                   String firstName, String lastName) throws SQLException {
-        int userID = userDAO.insertUser(username,password,firstName,lastName,3);
-        studentDAO.insertStudent(userID);
-
+    public String addStudent( String username, String password,
+                                   String firstName, String lastName) {
+        try {
+            int userId = userDAO.insertUser(username, password, firstName, lastName,3);
+            studentDAO.insertStudent(userId);
+            return "Student added successfully.";
+        }catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            // Return -1 in case of an exception (authentication failure)
+            return "Student addition failed.";
+        }
     }
 
-    public void addInstructor( String username, String password, String firstName, String lastName) throws SQLException {
-        // Create a user and retrieve the generated user_id
-        int userId = userDAO.insertUser(username, password, firstName, lastName,2);
-
-        // Insert an instructor with the generated user_id
-        instructorDAO.insertInstructor(userId);
+    public String addInstructor( String username, String password, String firstName, String lastName) {
+        try {
+            // Create a user and retrieve the generated user_id
+            int userId = userDAO.insertUser(username, password, firstName, lastName,2);
+            // Insert an admin with the generated user_id
+            instructorDAO.insertInstructor(userId);
+            return "Instructor added successfully.";
+        }catch (SQLException e) {
+            // Handle exceptions
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            // Return -1 in case of an exception (authentication failure)
+            return "Instructor addition failed.";
+        }
     }
-    public void deleteAdmin(int adminId) throws SQLException {
-        // Delete admin
-        adminDAO.deleteAdmin(adminId);
-
-        // Delete associated user
-        userDAO.deleteUser(adminId);
+    public String deleteAdmin(int adminId) {
+        try {
+            // Delete admin
+            adminDAO.deleteAdmin(adminId);
+            // Delete associated user
+            userDAO.deleteUser(adminId);
+            return "Admin deleted successfully.";
+        }catch (SQLException e) {
+            // Handle exceptions
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            // Return -1 in case of an exception (authentication failure)
+            return "Admin deleted failed.";
+        }
     }
-    public void deleteInstructor(int instructorId) throws SQLException {
-        // Delete instructor
-        instructorDAO.deleteInstructor(instructorId);
+    public String deleteInstructor(int instructorId) {
+        try {
+            // Delete instructor
+            instructorDAO.deleteInstructor(instructorId);
+            // Delete associated user
+            userDAO.deleteUser(instructorId);
+            return "Instructor deleted successfully.";
+        }catch (SQLException e) {
+            // Handle exceptions
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            // Return -1 in case of an exception (authentication failure)
+            return "Instructor deleted failed.";
+        }
 
-        // Delete associated user
-        userDAO.deleteUser(instructorId);
     }
-    public void deleteStudent(int studentId) throws SQLException {
-        // Delete student
-        studentDAO.deleteStudent( studentId);
+    public String deleteStudent(int studentId) {
+        try {
+            // Delete student
+            studentDAO.deleteStudent( studentId);
+            // Delete associated user
+            userDAO.deleteUser(studentId);
+            return "Student deleted successfully.";
+        }catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            // Return -1 in case of an exception (authentication failure)
+            return "Student deleted failed.";
+        }
 
-        // Delete associated user
-        userDAO.deleteUser(studentId);
+    }
+    public int authenticateUser(String username, String password) {
+        try {
+            return userDAO.authenticateUser(username,password);
+        }catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            // Return -1 in case of an exception (authentication failure)
+            return -1;
+        }
+    }
+
+    public int getUserRole(int userId){
+        try {
+            return userDAO.getRole(userId);
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return -1;
+    }
+    public String getUserFullName(int userId){
+        try {
+            return userDAO.getFullName(userId);
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public int getSpecificId(int userId , int roleId){
+        try{
+            if (roleId == 1) return adminDAO.getAdminId(userId);
+            else if(roleId == 2) return instructorDAO.getInstructorId(userId);
+            else if(roleId == 3) return studentDAO.getStudentId(userId);
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return -1;
     }
 
 }
