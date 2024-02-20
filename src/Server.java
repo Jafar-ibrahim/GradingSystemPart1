@@ -37,7 +37,7 @@ public class Server  {
     }
 
     public static void main(String[] args) throws SQLException, IOException {
-        int port = 8080;
+        int port = 9090;
         Server server = new Server(port);
         server.schemaManager.dropAllTablesIfExist();
         server.schemaManager.initializeTables();
@@ -69,7 +69,7 @@ public class Server  {
         ds.setServerName("localhost");
         ds.setDatabaseName("grading_system");
         ds.setUser("root");
-        ds.setPassword("qwerty");
+        ds.setPassword("1234");
         ds.setUseSSL(false);
         ds.setAllowPublicKeyRetrieval(true);
 
@@ -108,16 +108,29 @@ public class Server  {
 
             enrollmentService.addStudentToSection(1, 1);
             enrollmentService.addStudentToSection(2, 1);
-            enrollmentService.addStudentToSection(3, 4);
-            enrollmentService.addStudentToSection(4, 5);
+            enrollmentService.addStudentToSection(3, 2);
+            enrollmentService.addStudentToSection(4, 2);
+            enrollmentService.addStudentToSection(1, 3);
+            enrollmentService.addStudentToSection(2, 3);
+            enrollmentService.addStudentToSection(3, 3);
+            enrollmentService.addStudentToSection(8, 4);
+            enrollmentService.addStudentToSection(9, 4);
 
             enrollmentService.addInstructorToSection(1,1);
             enrollmentService.addInstructorToSection(2,2);
             enrollmentService.addInstructorToSection(2,3);
+            enrollmentService.addInstructorToSection(3,4);
 
             Random random = new Random();
             gradeService.addGrade(1,random.nextInt(101), 1);
             gradeService.addGrade(2,random.nextInt(101), 1);
+            gradeService.addGrade(3,random.nextInt(101), 2);
+            gradeService.addGrade(4,random.nextInt(101), 2);
+            gradeService.addGrade(1,random.nextInt(101), 3);
+            gradeService.addGrade(2,random.nextInt(101), 3);
+            gradeService.addGrade(3,random.nextInt(101), 3);
+            gradeService.addGrade(8,random.nextInt(101), 4);
+            gradeService.addGrade(9,random.nextInt(101), 4);
 
 
 
