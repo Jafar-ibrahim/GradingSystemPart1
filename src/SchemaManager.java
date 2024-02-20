@@ -6,7 +6,6 @@ import java.sql.Statement;
 
 public class SchemaManager {
     private final DataSource dataSource;
-    private PreparedStatement statement;
 
     public SchemaManager(DataSource dataSource) {
         this.dataSource = dataSource;

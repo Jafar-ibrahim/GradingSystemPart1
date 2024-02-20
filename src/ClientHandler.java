@@ -51,7 +51,7 @@ class ClientHandler implements Runnable {
             while(true) {
                 message = inputStream.readUTF();
                 parts = message.split(",");
-                System.out.println("Received command : "+ Arrays.toString(parts));
+                System.out.println("Received command : "+ Arrays.toString(parts)+" from "+userFullName+"(user_id :"+userId+")");
                 String result = dispatchCommand(parts,userRole);
 
                 outputStream.writeUTF(result);

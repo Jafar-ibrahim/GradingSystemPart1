@@ -37,7 +37,11 @@ public class Server  {
     }
 
     public static void main(String[] args) throws SQLException, IOException {
+<<<<<<< Updated upstream
         int port = 9090;
+=======
+        int port = 7070;
+>>>>>>> Stashed changes
         Server server = new Server(port);
         server.schemaManager.dropAllTablesIfExist();
         server.schemaManager.initializeTables();
@@ -48,6 +52,7 @@ public class Server  {
 
     public void start() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server started at port: "+port);
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected: " + clientSocket.getInetAddress());

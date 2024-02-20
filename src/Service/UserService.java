@@ -31,7 +31,6 @@ public class UserService {
         }catch (SQLException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
-            // Return -1 in case of an exception (authentication failure)
             return "Admin addition failed.";
         }
 
@@ -45,68 +44,52 @@ public class UserService {
         }catch (SQLException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
-            // Return -1 in case of an exception (authentication failure)
             return "Student addition failed.";
         }
     }
 
     public String addInstructor( String username, String password, String firstName, String lastName) {
         try {
-            // Create a user and retrieve the generated user_id
             int userId = userDAO.insertUser(username, password, firstName, lastName,2);
-            // Insert an admin with the generated user_id
             instructorDAO.insertInstructor(userId);
             return "Instructor added successfully.";
         }catch (SQLException e) {
-            // Handle exceptions
             System.out.println(e.getMessage());
             e.printStackTrace();
-            // Return -1 in case of an exception (authentication failure)
             return "Instructor addition failed.";
         }
     }
     public String deleteAdmin(int adminId) {
         try {
-            // Delete admin
             adminDAO.deleteAdmin(adminId);
-            // Delete associated user
             userDAO.deleteUser(adminId);
             return "Admin deleted successfully.";
         }catch (SQLException e) {
-            // Handle exceptions
             System.out.println(e.getMessage());
             e.printStackTrace();
-            // Return -1 in case of an exception (authentication failure)
             return "Admin deleted failed.";
         }
     }
     public String deleteInstructor(int instructorId) {
         try {
-            // Delete instructor
             instructorDAO.deleteInstructor(instructorId);
-            // Delete associated user
             userDAO.deleteUser(instructorId);
             return "Instructor deleted successfully.";
         }catch (SQLException e) {
-            // Handle exceptions
             System.out.println(e.getMessage());
             e.printStackTrace();
-            // Return -1 in case of an exception (authentication failure)
             return "Instructor deleted failed.";
         }
 
     }
     public String deleteStudent(int studentId) {
         try {
-            // Delete student
             studentDAO.deleteStudent( studentId);
-            // Delete associated user
             userDAO.deleteUser(studentId);
             return "Student deleted successfully.";
         }catch (SQLException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
-            // Return -1 in case of an exception (authentication failure)
             return "Student deleted failed.";
         }
 
@@ -117,7 +100,6 @@ public class UserService {
         }catch (SQLException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
-            // Return -1 in case of an exception (authentication failure)
             return -1;
         }
     }

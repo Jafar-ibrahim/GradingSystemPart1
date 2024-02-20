@@ -23,7 +23,7 @@ public class Client {
 
     public static void main(String[] args) {
         String host = "localhost";
-        int port = 8080;
+        int port = 7070;
         Client client = new Client(host,port);
         client.run();
     }
