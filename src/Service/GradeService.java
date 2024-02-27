@@ -106,10 +106,7 @@ public class GradeService {
         return "Overall Average Across All Courses: " + overallAvg + "\n";
     }
     public String getCombinedInformation(int studentId){
-        System.out.println("Combined Information for Student " + studentId + ":\n");
-
         return getGradeReport(studentId)+"\n"+ getStudentAverage(studentId);
-
     }
 
 

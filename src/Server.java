@@ -1,4 +1,5 @@
 import Service.*;
+import Util.SchemaManager;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
 import javax.sql.DataSource;
@@ -7,12 +8,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server  {
 
     private int port;
     private  DataSource dataSource;
-    private  SchemaManager schemaManager;
+    private SchemaManager schemaManager;
     private  EnrollmentService enrollmentService;
     private  GradeService gradeService;
     private  UserService userService;
@@ -37,11 +40,7 @@ public class Server  {
     }
 
     public static void main(String[] args) throws SQLException, IOException {
-<<<<<<< Updated upstream
-        int port = 9090;
-=======
         int port = 7070;
->>>>>>> Stashed changes
         Server server = new Server(port);
         server.schemaManager.dropAllTablesIfExist();
         server.schemaManager.initializeTables();
@@ -51,6 +50,8 @@ public class Server  {
     }
 
     public void start() throws IOException {
+        // to limit the number of sessions opened
+        ExecutorService executor = Executors.newFixedThreadPool(30);
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server started at port: "+port);
             while (true) {
@@ -58,7 +59,7 @@ public class Server  {
                 System.out.println("Client connected: " + clientSocket.getInetAddress());
 
                 // Create a new thread for handling the client
-                new Thread(new ClientHandler(clientSocket,dataSource)).start();
+                executor.execute(new Thread(new ClientHandler(clientSocket,dataSource)));
             }
         }catch (IOException e){
             System.out.println(e.getMessage());
@@ -74,7 +75,7 @@ public class Server  {
         ds.setServerName("localhost");
         ds.setDatabaseName("grading_system");
         ds.setUser("root");
-        ds.setPassword("1234");
+        ds.setPassword("qwerty");
         ds.setUseSSL(false);
         ds.setAllowPublicKeyRetrieval(true);
 
@@ -84,6 +85,7 @@ public class Server  {
 
 
     private void addDummyData()  {
+        System.out.println("Inserting dummy data ... ");
         try (Connection connection = dataSource.getConnection()) {
             roleService.addRole(1, "admin");
             roleService.addRole(2, "instructor");
@@ -139,7 +141,7 @@ public class Server  {
 
 
 
-            System.out.println("Dummy data added successfully.");
+            System.out.println("Dummy data inserted successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
         }

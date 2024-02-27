@@ -3,6 +3,7 @@ package DAO;
 import javax.sql.DataSource;
 import java.sql.*;
 import Exception.*;
+import Util.PasswordAuthenticator;
 
 public class UserDAO {
 
@@ -14,6 +15,7 @@ public class UserDAO {
     public int insertUser(String username, String password,
                                   String firstName, String lastName, int roleId) throws SQLException {
         int userId = -1;
+        password = PasswordAuthenticator.hashPassword(password);
         String sql = "INSERT INTO user(username, password, first_name, last_name, role_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -94,21 +96,36 @@ public class UserDAO {
         }
         return roleId;
     }
-    public int authenticateUser(String username, String password) throws SQLException {
-        String sql = "SELECT user_id FROM user WHERE username = ? AND password = ?";
+    public String getPassword(int userId) throws SQLException {
+        String sql = "SELECT password FROM user WHERE user_id = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, userId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("password");
+                } else {
+                    // Username not found
+                    return "N/A";
+                }
+            }
+
+        }
+    }
+    public int getIdByUsername(String username) throws SQLException {
+        String sql = "SELECT user_id FROM user WHERE username = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);
-
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    // User authenticated, return user_id
                     return resultSet.getInt("user_id");
                 } else {
-                    // User not authenticated
+                    // Username not found
                     return -1;
                 }
             }

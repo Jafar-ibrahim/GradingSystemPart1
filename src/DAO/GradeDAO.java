@@ -18,13 +18,13 @@ public class GradeDAO {
         this.dataSource = dataSource;
     }
 
-    public int insertGrade(int studentId, int grade, int sectionId) throws SQLException {
+    public int insertGrade(int studentId, double grade, int sectionId) throws SQLException {
         String sql = "INSERT INTO grade(student_id, section_id, grade) VALUES (?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, studentId);
             preparedStatement.setInt(2, sectionId);
-            preparedStatement.setInt(3, grade);
+            preparedStatement.setDouble(3, grade);
             return preparedStatement.executeUpdate();
         }
     }

@@ -1,3 +1,5 @@
+package Util;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -60,7 +62,7 @@ public class SchemaManager {
                     "first_name VARCHAR(255)," +
                     "last_name VARCHAR(255)," +
                     "role_id INT," +
-                    "FOREIGN KEY (role_id) REFERENCES role(role_id))");
+                    "FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE)");
         }
     }
     private void createStudentTable() throws SQLException {
@@ -69,7 +71,7 @@ public class SchemaManager {
             statement.execute("CREATE TABLE IF NOT EXISTS student (" +
                     "student_id INT AUTO_INCREMENT PRIMARY KEY," +
                     "user_id INT," +
-                    "FOREIGN KEY (user_id) REFERENCES user(user_id))");
+                    "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE)");
         }
     }
 
@@ -79,7 +81,7 @@ public class SchemaManager {
             statement.execute("CREATE TABLE IF NOT EXISTS instructor (" +
                     "instructor_id INT AUTO_INCREMENT PRIMARY KEY," +
                     "user_id INT," +
-                    "FOREIGN KEY (user_id) REFERENCES user(user_id))");
+                    "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE)");
         }
     }
 
@@ -89,7 +91,7 @@ public class SchemaManager {
             statement.execute("CREATE TABLE IF NOT EXISTS admin (" +
                     "admin_id INT AUTO_INCREMENT PRIMARY KEY," +
                     "user_id INT," +
-                    "FOREIGN KEY (user_id) REFERENCES user(user_id))");
+                    "FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE)");
         }
     }
     private void createCourseTable() throws SQLException {
@@ -106,10 +108,10 @@ public class SchemaManager {
             statement.execute("CREATE TABLE grade (" +
                     "student_id INT," +
                     "section_id INT," +
-                    "grade INT," +
+                    "grade DOUBLE," +
                     "PRIMARY KEY (student_id, section_id)," +
-                    "FOREIGN KEY (student_id) REFERENCES student(student_id)," +
-                    "FOREIGN KEY (section_id) REFERENCES section(section_id))");
+                    "FOREIGN KEY (student_id) REFERENCES student(student_id) ON DELETE CASCADE," +
+                    "FOREIGN KEY (section_id) REFERENCES section(section_id) ON DELETE CASCADE)");
         }
     }
     private void createSectionTable() throws SQLException {
@@ -118,8 +120,8 @@ public class SchemaManager {
             statement.execute("CREATE TABLE section (" +
                     "section_id INT AUTO_INCREMENT PRIMARY KEY," +
                     "course_id INT," +
-                    "course_name VARCHAR(255)," +
-                    "FOREIGN KEY (course_id) REFERENCES course(course_id))");
+                    /*"course_name VARCHAR(255)," +*/
+                    "FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE)");
         }
     }
     private void createStudent_SectionTable() throws SQLException {
@@ -130,7 +132,7 @@ public class SchemaManager {
                     "section_id INT," +
                     "PRIMARY KEY (student_id, section_id)," +
                     "FOREIGN KEY (student_id) REFERENCES user(user_id)," +
-                    "FOREIGN KEY (section_id) REFERENCES section(section_id))");
+                    "FOREIGN KEY (section_id) REFERENCES section(section_id) ON DELETE CASCADE)");
         }
     }
     private void createInstructor_SectionTable() throws SQLException {
@@ -141,7 +143,7 @@ public class SchemaManager {
                     "section_id INT," +
                     "PRIMARY KEY (instructor_id, section_id)," +
                     "FOREIGN KEY (instructor_id) REFERENCES user(user_id)," +
-                    "FOREIGN KEY (section_id) REFERENCES section(section_id))");
+                    "FOREIGN KEY (section_id) REFERENCES section(section_id) ON DELETE CASCADE)");
         }
     }
 

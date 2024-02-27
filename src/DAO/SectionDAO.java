@@ -17,11 +17,10 @@ public class SectionDAO {
 
     public void insertSection(int courseId) throws SQLException {
 
-        String sql = "INSERT INTO section(course_id, course_name) VALUES (?, ?)";
+        String sql = "INSERT INTO section(course_id) VALUES (?)";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, courseId);
-            preparedStatement.setString(2, getCourseName(courseId));
             preparedStatement.executeUpdate();
         }
     }

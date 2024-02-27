@@ -42,15 +42,17 @@ public class Client {
 
             String response = inputStream.readUTF();
             String[] info = response.split(",");
+            // if login info is invalid
             if(info.length < 3){
                 System.out.println(response);
+                System.out.println("Exiting...");
+                return;
             }else{
                 userId = Integer.parseInt(info[0]);
                 specificId = Integer.parseInt(info[1]);
                 roleId = Integer.parseInt(info[2]);
                 name = info[3];
                 System.out.println(inputStream.readUTF());
-                System.out.println(userId+","+specificId+","+roleId+","+name);
             }
             String command = "";
             while (true) {

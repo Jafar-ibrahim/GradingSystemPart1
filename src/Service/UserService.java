@@ -4,9 +4,9 @@ import DAO.AdminDAO;
 import DAO.InstructorDAO;
 import DAO.StudentDAO;
 import DAO.UserDAO;
+import Util.PasswordAuthenticator;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 public class UserService {
@@ -96,7 +96,10 @@ public class UserService {
     }
     public int authenticateUser(String username, String password) {
         try {
-            return userDAO.authenticateUser(username,password);
+            int userId = userDAO.getIdByUsername(username);
+            if (userId == -1) return -1;
+            String hashedPassword = userDAO.getPassword(userId);
+            return (PasswordAuthenticator.verifyPassword(password,hashedPassword))? userId : -1;
         }catch (SQLException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
